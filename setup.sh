@@ -3,11 +3,11 @@
 set -x # echo on
 PWD=`pwd`
 
-ln -sf $PWD/vimrc.vim ~/.vimrc 
 
 mkdir -p ~/.vim/bundle
 
 ln -sf $PWD ~/.vim/stimim
+ln -sf ~/.vim/stimim/vimrc.vim ~/.vimrc
 
 git clone https://github.com/gmarik/vundle.git ~/.vim/bundle/vundle
 
