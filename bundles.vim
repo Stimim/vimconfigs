@@ -13,7 +13,7 @@ Bundle 'tpope/vim-sensible'
 Bundle 'Lokaltog/vim-easymotion'
 
 Bundle 'scrooloose/nerdtree'
-map <C-n> :NERDTreeToggle<CR>
+map <C-o> :NERDTreeToggle<CR>
 
 Bundle 'Valloric/YouCompleteMe'
 Bundle 'vim-scripts/STL-Syntax'
