@@ -18,6 +18,8 @@ map <C-n> :NERDTreeToggle<CR>
 Bundle 'Valloric/YouCompleteMe'
 Bundle 'vim-scripts/STL-Syntax'
 
+Bundle 'bling/vim-airline'
+
 " color schemes
 " Bundle 'Lokaltog/vim-distinguished'
 
