@@ -31,3 +31,8 @@ endif
 if $TERM == 'linux'
   set t_Co=8
 endif
+
+map <C-l> <C-w>l
+map <C-j> <C-w>j
+map <C-k> <C-w>k
+map <C-h> <C-w>h
