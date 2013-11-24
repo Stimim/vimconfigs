@@ -7,11 +7,11 @@ set shiftwidth=2
 set softtabstop=2
 set tabstop=2
 
-autocmd BufNewFile *.cpp 0r ~/.vim/templates/cpp.tpl
-autocmd BufNewFile *.c 0r ~/.vim/templates/c.tpl
-autocmd BufNewFile *.tex 0r ~/.vim/templates/tex.tpl
-autocmd BufNewFile *.py 0r ~/.vim/templates/py.tpl
-autocmd BufNewFile *.rb 0r ~/.vim/templates/rb.tpl
+autocmd BufNewFile *.cpp 0r ~/.vim/stimim/templates/cpp.tpl
+autocmd BufNewFile *.c 0r ~/.vim/stimim/templates/c.tpl
+autocmd BufNewFile *.tex 0r ~/.vim/stimim/templates/tex.tpl
+autocmd BufNewFile *.py 0r ~/.vim/stimim/templates/py.tpl
+autocmd BufNewFile *.rb 0r ~/.vim/stimim/templates/rb.tpl
 
 autocmd FileType make setlocal noexpandtab
 
