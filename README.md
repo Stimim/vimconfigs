@@ -1,6 +1,6 @@
-##vimconfigs
+#vimconfigs
 
-#Usage
+##Usage
 ```
 bash setup.sh
 ```
