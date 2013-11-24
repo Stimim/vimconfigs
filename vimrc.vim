@@ -20,19 +20,24 @@ set bg=dark
 "colorscheme distinguished
 
 if $TERM == 'screen'
-	set term=xterm
-	" Fix keycodes
-	map [1~ <Home>
-	map [4~ <End>
-	imap [1~ <Home>
-	imap [4~ <End>
+  set term=xterm
+  " Fix keycodes
+  map [1~ <Home>
+  map [4~ <End>
+  imap [1~ <Home>
+  imap [4~ <End>
 endif
 
 if $TERM == 'linux'
   set t_Co=8
 endif
 
+" highlight search
+set hls
+
 map <C-l> <C-w>l
 map <C-j> <C-w>j
 map <C-k> <C-w>k
 map <C-h> <C-w>h
+
+let mapleader = ","
