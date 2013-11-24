@@ -20,6 +20,8 @@ Bundle 'vim-scripts/STL-Syntax'
 
 Bundle 'bling/vim-airline'
 
+Bundle 'scrooloose/nerdcommenter'
+
 " color schemes
 " Bundle 'Lokaltog/vim-distinguished'
 
