@@ -41,3 +41,8 @@ map <C-k> <C-w>k
 map <C-h> <C-w>h
 
 let mapleader = ","
+
+set ignorecase
+set smartcase
+"set foldmethod=syntax
+"set foldlevel=99

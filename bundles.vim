@@ -22,6 +22,8 @@ Bundle 'bling/vim-airline'
 
 Bundle 'scrooloose/nerdcommenter'
 
+Bundle 'vim-scripts/gtags.vim'
+
 " color schemes
 " Bundle 'Lokaltog/vim-distinguished'
 
