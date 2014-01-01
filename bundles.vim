@@ -10,7 +10,7 @@ Bundle 'gmarik/vundle'
 Bundle 'tpope/vim-fugitive'
 Bundle 'tpope/vim-sensible'
 
-Bundle 'Lokaltog/vim-easymotion'
+" Bundle 'Lokaltog/vim-easymotion'
 
 Bundle 'scrooloose/nerdtree'
 map <C-o> :NERDTreeToggle<CR>
