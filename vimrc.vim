@@ -46,3 +46,4 @@ set ignorecase
 set smartcase
 "set foldmethod=syntax
 "set foldlevel=99
+set title
