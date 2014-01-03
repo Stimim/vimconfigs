@@ -1,11 +1,18 @@
 " Vim indent file
-" Language:	C++
-" Maintainer:	Konstantin Lepa <konstantin.lepa@gmail.com>
-" Last Change:	2010 May 20
+" Language: C++
+" Maintainer: Stimim Chen <death1048576@gmail.com>
+" Last Change: Fri 03 Jan 2014 11:33:53 AM CST
 " License: MIT
-" Version: 1.1.0
+" Version: 1.1.1
 "
 " Changes {{{
+" 1.1.1 2014-01-03
+"   * Clone the file from Konstantin Lepa <konstantin.lepa@gmail.com> on
+"     vim-scripts
+"   * setlocal cinoptions=h1,l1,g1,t0,i4,+4,(0,w1,W4,j1,J1
+"     which handles lambda function (for c++11) well
+"   * disable did_indent checking, it seems to conflict with other plugings.
+"
 " 1.1.0 2011-01-17
 "   Refactored source code.
 "   Some fixes.
