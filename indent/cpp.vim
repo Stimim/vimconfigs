@@ -85,8 +85,7 @@ setlocal wrap
 
 setlocal cindent
 setlocal cinoptions=h1,l1,g1,t0,i4,+4,(0,w1,W4,j1,J1
-"setlocal cinoptions==s,e0,n0,f0,{0,}0,^0,L-1,:s,=s,l0,b0,gs,hs,N0,ps,ts,is,+s,c3,C0,/0,(2s,us,U0,w0,W0,k0,m0,j0,J0,)20,*70,#0
 
-"setlocal indentexpr=GoogleCppIndent()
+setlocal indentexpr=GoogleCppIndent()
 
 let b:undo_indent = "setl sw< ts< sts< et< tw< wrap< cin< cino< inde<"
