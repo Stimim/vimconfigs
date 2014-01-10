@@ -91,7 +91,13 @@ setlocal textwidth=80
 setlocal wrap
 
 setlocal cindent
-setlocal cinoptions=h1,l1,g1,t0,i4,+4,(0,w1,W4,j1,J1
+" this fixes c++11 lambda, but does not fix constructor with initializer:
+" MyClass::MyClass()
+"   : BaseClass(1) {
+"   ^ this should indent 4 spaces
+"   }
+"   ^ this should be at head of the line
+setlocal cinoptions=h1,l1,g1,t0,i4,+4,(0,w1,W4,j1,J0
 
 setlocal indentexpr=GoogleCppIndent()
 
