@@ -47,3 +47,8 @@ set smartcase
 "set foldmethod=syntax
 "set foldlevel=99
 set title
+
+let g:Tex_DefaultTargetFormat='pdf'
+let g:Tex_CompileRule_pdf='xelatex -interaction=nonstopmode $*'
+
+let g:ycm_global_ycm_extra_conf='~/.vim/stimim/ycm/ycm_extra_conf.py'

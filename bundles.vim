@@ -23,6 +23,8 @@ Bundle 'bling/vim-airline'
 Bundle 'scrooloose/nerdcommenter'
 
 Bundle 'vim-scripts/gtags.vim'
+Bundle 'vim-scripts/LaTeX-Suite-aka-Vim-LaTeX'
+Bundle 'vim-scripts/haskell.vim'
 
 " color schemes
 " Bundle 'Lokaltog/vim-distinguished'
