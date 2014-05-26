@@ -1,0 +1,114 @@
+snippet class
+class ${1:ClassName} {
+ private:
+ public:
+};
+endsnippet
+
+snippet struct
+struct ${1:ClassName} {
+ private:
+ public:
+};
+endsnippet
+
+snippet def "#define ..." b
+#define ${1:METHOD}(${2:x}) ($2)
+endsnippet
+
+snippet ZCLASS "an prime field implementation"
+/** DEFINE PRIME FIELD CLASS **/
+struct ZZ {
+	static constexpr long long MOD = ${1:1000000007LL};
+	long long value;
+	mutable long long cached_inv;
+	ZZ(long long v=0) : value(v), cached_inv(-1) {
+		ensure();
+	}
+	void ensure() {
+		if (value < 0 || value >= MOD) {
+			value %= MOD;
+			value = (value + MOD) % MOD;
+		}
+	}
+	void R() { scanf("%lld", &value); cached_inv = -1; }
+	ZZ& operator += (const ZZ& o) {
+		value += o.value;
+		if (value >= MOD) value -= MOD;
+		return *this;
+	}
+	ZZ& operator -= (const ZZ& o) {
+		value -= o.value;
+		if (value < 0) value += MOD;
+		return *this;
+	}
+	ZZ& operator *= (const ZZ& o) {
+		value *= o.value;
+		value %= MOD;
+		return *this;
+	}
+	ZZ& operator /= (const ZZ& o) {
+		return (*this *= o.inv());
+	}
+	#define DEFOPT(opt) \
+		ZZ operator opt (const ZZ& o) const { \
+			ZZ x = *this; x opt##= o; return x; }
+	DEFOPT(+)
+	DEFOPT(-)
+	DEFOPT(*)
+	DEFOPT(/)
+	#undef DEFOPT
+
+	ZZ pow(int n) const {
+		ZZ x = *this;
+		ZZ r = 1;
+
+		while (n > 0) {
+			if (n & 1) { r *= x; }
+			x *= x;
+			n >>= 1;
+		}
+		return r;
+	}
+
+	ZZ inv() const {
+		return cached_inv == -1 ? cached_inv = pow(MOD - 2).value : cached_inv;
+	}
+};
+inline void read_this(ZZ&z) {read_this(z.value);}
+/** END OF ZZ **/
+$0
+endsnippet
+
+snippet HEADERS "for coding contests" b
+/** HEADER FOR CODING CONTESTS **/
+#include <vector>
+#include <cstdio>
+#include <map>
+#include <set>
+#include <algorithm>
+#include <tuple>
+#include <cassert>
+
+typedef long long LL;
+typedef unsigned long long ULL;
+
+#define V vector
+#define RI(x) read_this(x)
+#define RV(v) read_these(v)
+#define RNP(n, p) read_these(n,p)
+#define RALL(x, ...) read_these(x, ##__VA_ARGS__)
+inline void read_this(int&v){scanf("%d",&v);}
+inline void read_this(unsigned int&v){scanf("%u",&v);}
+inline void read_this(long long&v){scanf("%lld",&v);}
+inline void read_this(unsigned long long&v){scanf("%llu",&v);}
+inline void read_these(){}
+template <typename T, typename...Ts>
+inline void read_these(T&v,Ts&... vs){read_this(v);read_these(vs...);}
+template <typename T>
+inline void read_these(std::vector<T>&vs){for(auto&v:vs)read_this(v);}
+template<typename T>
+inline void read_these(size_t n,T*vs){for(size_t i=0;i<n;++i)read_this(vs[i]);}
+/** END OF HEADER **/
+$0
+endsnippet

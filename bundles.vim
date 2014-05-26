@@ -4,30 +4,40 @@ filetype off  " required by vundle
 set rtp+=~/.vim/bundle/vundle
 set rtp+=~/.vim/stimim
 
-call vundle#rc()
+call vundle#begin()
 
-Bundle 'gmarik/vundle'
-Bundle 'tpope/vim-fugitive'
-Bundle 'tpope/vim-sensible'
+Plugin 'gmarik/vundle'
+Plugin 'tpope/vim-fugitive'
+Plugin 'tpope/vim-sensible'
 
-" Bundle 'Lokaltog/vim-easymotion'
+" Plugin 'Lokaltog/vim-easymotion'
 
-Bundle 'scrooloose/nerdtree'
+Plugin 'scrooloose/nerdtree'
 map <C-o> :NERDTreeToggle<CR>
 
-Bundle 'Valloric/YouCompleteMe'
-Bundle 'vim-scripts/STL-Syntax'
+Plugin 'Valloric/YouCompleteMe'
+let g:ycm_key_list_previous_completion=['<Up>']
 
-Bundle 'bling/vim-airline'
+Plugin 'vim-scripts/STL-Syntax'
 
-Bundle 'scrooloose/nerdcommenter'
+Plugin 'bling/vim-airline'
 
-Bundle 'vim-scripts/gtags.vim'
-Bundle 'vim-scripts/LaTeX-Suite-aka-Vim-LaTeX'
-Bundle 'vim-scripts/haskell.vim'
+Plugin 'scrooloose/nerdcommenter'
+
+Plugin 'vim-scripts/gtags.vim'
+"Plugin 'vim-scripts/LaTeX-Suite-aka-Vim-LaTeX'
+Plugin 'vim-scripts/haskell.vim'
+
+Plugin 'SirVer/ultisnips'
+let g:UltiSnipsExpandTrigger="<F2>"
+let g:UltiSnipsListSnippets="<F3>"
+let g:UltiSnipsJumpForwardTrigger="<c-b>"
+let g:UltiSnipsJumpBackwardTrigger="<c-z>"
 
 " color schemes
-" Bundle 'Lokaltog/vim-distinguished'
+" Plugin 'Lokaltog/vim-distinguished'
+
+call vundle#end()
 
 filetype plugin indent on
 
