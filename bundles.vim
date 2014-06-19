@@ -12,11 +12,14 @@ Plugin 'tpope/vim-sensible'
 
 " Plugin 'Lokaltog/vim-easymotion'
 
+Plugin 'hallison/vim-markdown'
+
 Plugin 'scrooloose/nerdtree'
 map <C-o> :NERDTreeToggle<CR>
 
 Plugin 'Valloric/YouCompleteMe'
 let g:ycm_key_list_previous_completion=['<Up>']
+let g:ycm_autoclose_preview_window_after_completion=1
 
 Plugin 'vim-scripts/STL-Syntax'
 

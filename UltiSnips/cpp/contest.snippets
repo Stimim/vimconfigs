@@ -58,24 +58,22 @@ struct ZZ {
 	DEFOPT(*)
 	DEFOPT(/)
 	#undef DEFOPT
-
 	ZZ pow(int n) const {
-		ZZ x = *this;
-		ZZ r = 1;
-
+		ZZ x = *this; ZZ r = 1;
 		while (n > 0) {
 			if (n & 1) { r *= x; }
-			x *= x;
-			n >>= 1;
+			x *= x; n >>= 1;
 		}
 		return r;
 	}
-
 	ZZ inv() const {
 		return cached_inv == -1 ? cached_inv = pow(MOD - 2).value : cached_inv;
 	}
 };
 inline void read_this(ZZ&z) {read_this(z.value);}
+ostream& operator<< (ostream& os, const ZZ& x) {
+	assert (x.value >= 0); os << x.value; return os;
+}
 /** END OF ZZ **/
 $0
 endsnippet
@@ -89,11 +87,14 @@ snippet HEADERS "for coding contests" b
 #include <algorithm>
 #include <tuple>
 #include <cassert>
+#include <cstring>
+#include <string>
+#include <queue>
 
 typedef long long LL;
 typedef unsigned long long ULL;
 
-#define V vector
+template <typename T> using V = std::vector<T>;
 #define RI(x, ...) read_these(x, ##__VA_ARGS__)
 #define RV(v) read_these(v)
 #define RNP(n, p) read_these(n,p)
@@ -112,7 +113,7 @@ inline void read_these(size_t n,T*vs){for(size_t i=0;i<n;++i)read_this(vs[i]);}
 $0
 endsnippet
 
-snippet BIT "binary indexed tree"
+snippet BinaryIndexedTree "binary indexed tree" b
 template<typename T>
 struct BinaryIndexedTree {
   /**
@@ -157,7 +158,7 @@ struct BinaryIndexedTree {
 };
 endsnippet
 
-snippet LINKCUT "link-cut tree"
+snippet LINKCUT "link-cut tree" b
 struct LinkCutTree {
   struct Node {
     static vector<Node> node_pool;
@@ -377,4 +378,332 @@ struct LinkCutTree {
 typedef typename LinkCutTree::Node Node;
 vector<Node> Node::node_pool{300000};
 size_t Node::node_pool_tail = 0;
+endsnippet
+
+snippet AhoChorasick "exact string set matching problem" b
+struct AhoChorasick {
+  struct Vertex {
+    static constexpr int N_CHILDS = 10;
+    static constexpr int UNDEF_REF = 0;
+    bool in_dict;
+    int fail_ptr;
+    int childs[N_CHILDS];
+    int out;
+    void init(bool in_d = false) {
+      out = 0;
+      in_dict = in_d;
+      fail_ptr = UNDEF_REF;
+      memset(childs, 0, sizeof(childs));
+    }
+  };
+  int root;
+  vector<Vertex> pool;
+  int next_idx;
+  int new_node() {
+    assert (next_idx < (int) pool.size());
+    pool[next_idx].init();
+    return next_idx ++;
+  }
+  void reset(int capa = 200005) {
+    next_idx = 1;
+    pool.resize(capa);
+    root = new_node();
+  }
+  void init(const vector<string>& patterns) {
+    // 1. build keyword tree for P
+    for (const auto& pattern : patterns) {
+      auto v = root;
+      for (auto c : pattern) {
+        int value = c - '0';
+        if (pool[v].childs[value] == Vertex::UNDEF_REF) {
+          pool[v].childs[value] = new_node();
+        }
+        v = pool[v].childs[value];
+      }
+      pool[v].in_dict = true;
+      pool[v].out = 1;
+    }
+    // 2. complete goto function for the root
+    for (auto a = 0; a < Vertex::N_CHILDS; ++ a) {
+      if (pool[root].childs[a] == Vertex::UNDEF_REF) {
+        pool[root].childs[a] = root;
+      }
+    }
+    vector<int> que;
+    que.reserve(next_idx);
+    for (auto a = 0; a < Vertex::N_CHILDS; ++ a) {
+      int q;
+      if ((q = pool[root].childs[a]) != root) {
+        pool[q].fail_ptr = root;
+        que.push_back(q);
+      }
+    }
+    for (size_t i = 0; i < que.size(); ++ i) {
+      auto r = que[i];
+      for (auto a = 0; a < Vertex::N_CHILDS; ++ a) {
+        int u;
+        if ((u = pool[r].childs[a]) != Vertex::UNDEF_REF) {
+          que.push_back(u);
+          auto v = pool[r].fail_ptr;
+          while (pool[v].childs[a] == Vertex::UNDEF_REF) {
+            v = pool[v].fail_ptr;
+          }
+          auto fu = pool[v].childs[a];
+          pool[u].fail_ptr = fu;
+          pool[u].out += pool[fu].out;
+        }
+      }
+    }
+  }
+  int match(const string& txt) const {
+    int q = root;
+    int ans = 0;
+    for (auto c : txt) {
+      int value = c - '0';
+      while (pool[q].childs[value] == Vertex::UNDEF_REF) {
+        q = pool[q].fail_ptr;
+      }
+      q = pool[q].childs[value];
+      ans += pool[q].out;
+    }
+    return ans;
+  }
+};
+endsnippet
+
+snippet SuffixTree "SuffixTree" b
+struct SuffixTree {
+  struct Vertex {
+    static constexpr int E_SIZE = 11;
+    static constexpr int END_OF_STRING = 1e8;
+    static constexpr int UNDEF_REF = 0;
+    // the path between parent and this node: s[a]..s[b - 1]
+    int a;
+    int b;
+    int suffix_link;
+    int es[E_SIZE]; // 10 is '$'
+    int n_leaves;
+    Vertex() {}
+    void init(int _a, int _b) {
+      this->a = _a;
+      this->b = _b;
+      suffix_link = UNDEF_REF;
+      memset(es, 0, sizeof(es));
+    }
+  };
+  vector<Vertex> pool;
+  size_t used_size;
+  string txt;
+  int new_node(int a, int b) {
+    pool[used_size].init(a, b);
+    return used_size ++;
+  }
+  void init(int n) {
+    pool.resize(n);
+    used_size = 1;
+  }
+  void insert(const string& in) {
+    txt = in;
+    txt.push_back(':');
+    int root = new_node(0, 0);
+    int active_node = root;
+    for (size_t tail = 0, head = 0; tail < txt.size(); ++ tail) {
+      int ant = root;
+      while (head <= tail) {
+        while (true) {
+          if (tail == head) break;
+          auto q = pool[active_node].es[txt[head] - '0'];
+          if (head + (pool[q].b - pool[q].a) > tail) break;
+          head += pool[q].b - pool[q].a;
+          active_node = q;
+        }
+        auto q = active_node;
+        if (head == tail) {
+          if (pool[active_node].es[txt[head] - '0'] != Vertex::UNDEF_REF) break;
+        } else if (head < tail) {
+          auto r = pool[active_node].es[txt[head] - '0'];
+          auto k = pool[r].a + tail - head;
+          if (txt[tail] == txt[k]) break;
+          pool[active_node].es[txt[head] - '0'] = q = new_node(pool[r].a, k);
+          pool[q].es[txt[k] - '0'] = r;
+          pool[r].a = k;
+        }
+        pool[q].es[txt[tail] - '0'] = new_node(tail, Vertex::END_OF_STRING);
+        if (ant != root) {
+          pool[ant].suffix_link = q;
+        }
+        ant = q;
+        if (pool[active_node].suffix_link != Vertex::UNDEF_REF) {
+          active_node = pool[active_node].suffix_link;
+        } else {
+          head ++;
+        }
+      }
+      if (ant != root) {
+        pool[ant].suffix_link = active_node;
+      }
+    }
+  }
+  void count_leaves() {
+    vector<pair<int, bool>> vec;
+    vec.reserve(100000);
+    stack<pair<int, bool>, vector<pair<int, bool>>> st(vec);
+    st.push({1, true});
+    while (!st.empty()) {
+      auto v = st.top().first;
+      auto b = st.top().second;
+      st.pop();
+      if (b) {
+        st.push({v, false});
+        for (auto e = 0; e < Vertex::E_SIZE; ++ e) {
+          if (pool[v].es[e] != Vertex::UNDEF_REF) {
+            st.push({pool[v].es[e], true});
+          }
+        }
+      } else {
+        if (pool[v].b == Vertex::END_OF_STRING) {
+          pool[v].n_leaves = 1;
+        } else {
+          pool[v].n_leaves = 0;
+          for (auto e = 0; e < Vertex::E_SIZE; ++ e) {
+            int u;
+            if ((u = pool[v].es[e]) != Vertex::UNDEF_REF) {
+              pool[v].n_leaves += pool[u].n_leaves;
+            }
+          }
+        }
+      }
+    }
+  }
+  int count(const string& s) const {
+    int active_node = 1;
+    int active_length = 0;
+    int active_edge = 0;
+    for (auto c : s) {
+      int value = c - '0';
+      if (active_length == 0) {
+        int v;
+        if ((v = pool[active_node].es[value]) == Vertex::UNDEF_REF) {
+          // no such branch
+          return 0;
+        } else {
+          active_length = 1;
+          active_edge = value;
+          if (pool[v].a + active_length >= pool[v].b) {
+            active_node = v;
+            active_length = 0;
+          }
+        }
+      } else {
+        auto v = pool[active_node].es[active_edge];
+        if (value == txt[pool[v].a + active_length] - '0') {
+          active_length ++;
+          if (pool[v].a + active_length >= pool[v].b) {
+            active_node = v;
+            active_length = 0;
+          }
+        } else {
+          return 0;
+        }
+      }
+    }
+    if (active_length) {
+      auto v = pool[active_node].es[active_edge];
+      return pool[v].n_leaves;
+    } else {
+      return pool[active_node].n_leaves;
+    }
+    return 0;
+  }
+  void print(int v, int lvl, int tail = 1e8, bool print_n_leaves = false) const {
+    for (auto i = 0; i < lvl; ++ i) {
+      cout << "  ";
+    }
+    cout << "(" << v << ") ";
+    cout << txt.substr(pool[v].a, min(pool[v].b, tail) - pool[v].a) << ' ';
+    if (print_n_leaves) cout << pool[v].n_leaves << ' ';
+    if (pool[v].suffix_link != Vertex::UNDEF_REF) {
+      cout << "sl:" << pool[v].suffix_link << ' ';
+    }
+    cout << endl;
+    int ord[11] = {10, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
+    for (int i = 0; i < Vertex::E_SIZE; ++ i) {
+      auto u = pool[v].es[ord[i]];
+      if (u != Vertex::UNDEF_REF) {
+        print(u, lvl + 1, tail);
+      }
+    }
+  }
+  void print(int tail = 1e8, bool print_n_leaves = false) const {
+    cout << "------------------------" << endl;
+    print(1, 0, tail, print_n_leaves);
+    cout << "------------------------" << endl;
+  }
+};
+endsnippet
+
+snippet Heap "heap" b
+template<typename T>
+struct Heap {
+  vector<T> vs;
+  void init(size_t n) {
+    vs.clear();
+    vs.reserve(n);
+  }
+  void push(const T& x) {
+    vs.push_back(x);
+    auto i = vs.size() - 1;
+    while (i > 0 && x < vs[(i - 1) / 2]) {
+      vs[i] = vs[(i - 1) / 2];
+      i = (i - 1) / 2;
+    }
+    vs[i] = x;
+  }
+  const T top() const {
+    return vs[0];
+  }
+  bool empty() const {
+    return vs.size() == 0;
+  }
+  void pop() {
+    swap(vs[0], vs[vs.size() - 1]);
+    size_t i = 0;
+    auto x = vs[0];
+    vs.pop_back();
+#define HEAP_L(x) (2 * (x) + 1)
+#define HEAP_R(x) (2 * (x) + 2)
+    while (HEAP_L(i) < vs.size()) {
+      size_t j = HEAP_L(i);
+      if (HEAP_R(i) < vs.size()) {
+        if (vs[HEAP_R(i)] < vs[HEAP_L(i)]) {
+          j = HEAP_R(i);
+        }
+      }
+      if (vs[j] < x) {
+        vs[i] = vs[j];
+        //swap(vs[i], vs[j]);
+        i = j;
+      } else {
+        break;
+      }
+    }
+    vs[i] = x;
+  }
+};
+endsnippet
+
+snippet LCA "least common ancestor"
+inline bool ancestor(int x, int y, const V<Vertex>& vs) {
+  return vs[x].in <= vs[y].in && vs[x].out >= vs[y].out;
+}
+int lca(int x, int y, const V<Vertex>& vs) {
+  if (ancestor(x, y, vs)) return x;
+  if (ancestor(y, x, vs)) return y;
+  for (auto i = 16; i >= 0; -- i) {
+    if (!ancestor(vs[x].p[i], y, vs)) {
+      x = vs[x].p[i];
+    }
+  }
+  return vs[x].p[0];
+}
 endsnippet
