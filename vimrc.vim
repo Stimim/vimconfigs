@@ -14,6 +14,7 @@ autocmd BufNewFile *.py 0r ~/.vim/stimim/templates/py.tpl
 autocmd BufNewFile *.rb 0r ~/.vim/stimim/templates/rb.tpl
 
 autocmd FileType make setlocal noexpandtab
+autocmd BufNewFile,BufRead *.sage setlocal filetype=python
 
 set t_Co=256
 set bg=dark
