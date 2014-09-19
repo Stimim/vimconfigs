@@ -16,7 +16,7 @@ snippet def "#define ..." b
 #define ${1:METHOD}(${2:x}) ($2)
 endsnippet
 
-snippet ZCLASS "an prime field implementation"
+snippet ZCLASS "an prime field implementation" b
 /** DEFINE PRIME FIELD CLASS **/
 struct ZZ {
 	static constexpr long long MOD = ${1:1000000007LL};
@@ -90,10 +90,9 @@ snippet HEADERS "for coding contests" b
 #include <cstring>
 #include <string>
 #include <queue>
-
+#include <limits>
 typedef long long LL;
 typedef unsigned long long ULL;
-
 template <typename T> using V = std::vector<T>;
 #define RI(x, ...) read_these(x, ##__VA_ARGS__)
 #define RV(v) read_these(v)
@@ -176,7 +175,6 @@ struct LinkCutTree {
     Node* path_parent;
     Node* l_child;
     Node* r_child;
-
 #define DEF(type, name) type SPLAY_##name; type MY_##name;
 #define SPLAY(name) SPLAY_##name // the sum of MY(name) in same splay tree
 #define MY(name) MY_##name
@@ -692,7 +690,7 @@ struct Heap {
 };
 endsnippet
 
-snippet LCA "least common ancestor"
+snippet LCA "least common ancestor" b
 inline bool ancestor(int x, int y, const V<Vertex>& vs) {
   return vs[x].in <= vs[y].in && vs[x].out >= vs[y].out;
 }
@@ -706,4 +704,282 @@ int lca(int x, int y, const V<Vertex>& vs) {
   }
   return vs[x].p[0];
 }
+endsnippet
+
+snippet GRAPH "graphic class with max flow" b
+struct Graph {
+  struct Edge {
+    Edge(size_t u, size_t r) : r(r), u(u) { }
+    size_t r;
+    size_t u;
+  };
+  vector<Edge> all_edge;
+  vector<vector<size_t>> adj;
+  void print() const {
+    cout << "nodes: " << endl;
+    for (const auto& a : adj) {
+      for (const auto& e : a) {
+        cout << e << ' ';
+      }
+      cout << endl;
+    }
+    cout << "edges: " << endl;
+    for (auto& e : all_edge) {
+      cout << e.u << ' ' << e.r << endl;
+    }
+  }
+  size_t new_node() {
+    // return a new node
+    adj.push_back(vector<size_t>());
+    return adj.size() - 1;
+  }
+  size_t nNodes() const {
+    return adj.size();
+  }
+  // directed edge
+  void add_edge(size_t u, size_t v, size_t cap) {
+    if (u == v || cap <= 0) return;
+    assert (u < nNodes() && v < nNodes());
+    all_edge.push_back(Edge(v, cap));
+    adj[u].push_back(all_edge.size() - 1);
+    all_edge.push_back(Edge(u, 0));
+    adj[v].push_back(all_edge.size() - 1);
+  }
+  size_t dinic_bfs(size_t s, size_t t, vector<bool>& visit, vector<size_t>& dist) {
+    fill(dist.begin(), dist.end(), numeric_limits<size_t>::max());
+    fill(visit.begin(), visit.end(), false);
+    vector<size_t> que(1, s);
+    que.reserve(nNodes());
+    visit[s] = true;
+    dist[s] = 0;
+    for (size_t i = 0; i < que.size(); ++ i) {
+      auto v = que[i];
+      for (auto ref : adj[v]) {
+        auto& e = all_edge[ref];
+        auto u = e.u;
+        if (e.r > 0 && !visit[u]) {
+          dist[u] = dist[v] + 1;
+          visit[u] = true;
+          que.push_back(u);
+          if (u == t) return dist[t];
+        }
+      }
+    }
+    return nNodes();
+  }
+  size_t dinic_dfs(size_t v, size_t df, size_t s, size_t t,
+                   vector<bool>& visit, const vector<size_t>& dist) {
+    if (v == t) return df;
+    if (visit[v]) return 0;
+    visit[v] = true;
+    for (auto i : adj[v]) {
+      auto& e = all_edge[i];
+      auto u = e.u;
+      if (e.r > 0 && dist[v] + 1 == dist[u]) {
+        auto f = dinic_dfs(u, min(df, e.r), s, t, visit, dist);
+        if (f) {
+          e.r -= f;
+          all_edge[i^1].r += f;
+          return f;
+        }
+      }
+    }
+    return 0;
+  }
+  size_t dinic(size_t s, size_t t) {
+    size_t flow = 0;
+    vector<size_t> dist(nNodes());
+    vector<bool> visit(nNodes());
+    while (dinic_bfs(s, t, visit, dist) < nNodes()) {
+      while (true) {
+        fill (visit.begin(), visit.end(), false);
+        auto f = dinic_dfs(s, numeric_limits<size_t>::max(), s, t, visit, dist);
+        if (!f) break;
+        flow += f;
+      }
+    }
+    return flow;
+  }
+  size_t max_flow(size_t s, size_t t) {
+    return dinic(s, t);
+  }
+};
+endsnippet
+
+snippet SPLAYTREE "splay tree" b
+struct SplayTree {
+  struct Node {
+    Node* parent;
+    Node* l_child;
+    Node* r_child;
+    int size; // size of the subtree
+    Node* init() {
+      size = 1;
+      parent = l_child = r_child = nullptr;
+      return this;
+    }
+    bool is_root() const {
+      return parent == nullptr;
+    }
+    void update() {
+      size = 1;
+      if (l_child != nullptr) {
+        size += l_child->size;
+      }
+      if (r_child != nullptr) {
+        size += r_child->size;
+      }
+    }
+    void rotate() {
+      if (parent == nullptr) return;
+      auto p = parent;
+      auto g = p->parent;
+      if (p->is_root()) {
+        parent = nullptr;
+      } else {
+        if (p == g->l_child) {
+          g->set_l_child(this);
+        } else {
+          assert (p == g->r_child);
+          g->set_r_child(this);
+        }
+      }
+      if (this == p->l_child) {
+        p->set_l_child(r_child);
+        set_r_child(p);
+      } else {
+        assert (this == p->r_child);
+        p->set_r_child(l_child);
+        set_l_child(p);
+      }
+      p->update();
+      update();
+    }
+    void set_l_child(Node* x) {
+      l_child = x;
+      if (x != nullptr) {
+        x->parent = this;
+      }
+    }
+    void set_r_child(Node* x) {
+      r_child = x;
+      if (x != nullptr) {
+        x->parent = this;
+      }
+    }
+    Node* find_ith(int i) {
+      update();
+      if (i >= size) return nullptr;
+      int idx = 0;
+      if (l_child != nullptr) {
+        idx += l_child->size;
+      }
+      if (idx < i) {
+        return r_child->find_ith(i - idx - 1);
+      }
+      if (idx > i) {
+        return l_child->find_ith(i);
+      }
+      return this;
+    }
+    Node* cut_l_child() {
+      auto p = l_child;
+      if (p != nullptr) {
+        p->parent = nullptr;
+      }
+      l_child = nullptr;
+      update();
+      return p;
+    }
+    Node* cut_r_child() {
+      auto p = r_child;
+      if (p != nullptr) {
+        p->parent = nullptr;
+      }
+      r_child = nullptr;
+      update();
+      return p;
+    }
+    void print(int indent) const {
+      for (auto i = 0; i < indent; ++ i) {
+        cout << "  ";
+      }
+      printf ("d: %p s: %d\n", this, size);
+      for (auto i = 0; i < indent; ++ i) {
+        cout << "  ";
+      }
+      printf (" l_child:\n");
+      if (l_child != nullptr) l_child->print(indent + 1);
+      for (auto i = 0; i < indent; ++ i) {
+        cout << "  ";
+      }
+      printf (" r_child:\n");
+      if (r_child != nullptr) r_child->print(indent + 1);
+    }
+  };
+  vector<Node> pool;
+  vector<Node*> ptrs;
+  int next_idx;
+  Node* root;
+  void splay(Node* x) {
+    while (!x->is_root()) {
+      if (x->parent->is_root()) {
+        x->rotate();
+      } else {
+        auto p = x->parent;
+        auto g = p->parent;
+        if ((x == p->l_child && p == g->l_child) ||
+            (x == p->r_child && p == g->r_child)) {
+          p->rotate();
+          x->rotate();
+        } else {
+          x->rotate();
+          x->rotate();
+        }
+      }
+    }
+    root = x;
+  }
+  Node* find_ith(int i) {
+    auto p = root->find_ith(i);
+    assert (p != nullptr);
+    splay(p);
+    return p;
+  }
+  void init(int n) {
+    pool.resize(n);
+    ptrs.resize(n);
+    next_idx = 0;
+    root = make_tree(0, n - 1);
+  }
+  Node* new_node(int data) {
+    auto p = &pool[next_idx ++];
+    return p->init();
+  }
+  Node* make_tree(int l, int r) {
+    if (l > r) return nullptr;
+    auto m = (l + r) / 2;
+    auto p = new_node(m);
+    ptrs[m] = p;
+    p->set_l_child(make_tree(l, m - 1));
+    p->set_r_child(make_tree(m + 1, r));
+    p->update();
+    return p;
+  }
+  void print() {
+    root->print(0);
+  }
+  int get_rank(int a) {
+    V<Node*> ps;
+    for (auto p = ptrs[a]; p != nullptr; p = p->parent) {
+      ps.push_back(p);
+    }
+    for (auto i = ps.size(); i > 0; i --) {
+      ps[i - 1]->update();
+    }
+    // now everything is up to date in the path
+    splay(ptrs[a]);
+    return ptrs[a]->l_child != nullptr ? ptrs[a]->l_child->size : 0;
+  }
+};
 endsnippet
