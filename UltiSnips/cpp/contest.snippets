@@ -19,60 +19,60 @@ endsnippet
 snippet ZCLASS "an prime field implementation" b
 /** DEFINE PRIME FIELD CLASS **/
 struct ZZ {
-	static constexpr long long MOD = ${1:1000000007LL};
-	long long value;
-	mutable long long cached_inv;
-	ZZ(long long v=0) : value(v), cached_inv(-1) {
-		ensure();
-	}
-	void ensure() {
-		if (value < 0 || value >= MOD) {
-			value %= MOD;
-			value = (value + MOD) % MOD;
-		}
-	}
-	void R() { scanf("%lld", &value); cached_inv = -1; }
-	ZZ& operator += (const ZZ& o) {
-		value += o.value;
-		if (value >= MOD) value -= MOD;
-		return *this;
-	}
-	ZZ& operator -= (const ZZ& o) {
-		value -= o.value;
-		if (value < 0) value += MOD;
-		return *this;
-	}
-	ZZ& operator *= (const ZZ& o) {
-		value *= o.value;
-		value %= MOD;
-		return *this;
-	}
-	ZZ& operator /= (const ZZ& o) {
-		return (*this *= o.inv());
-	}
-	#define DEFOPT(opt) \
-		ZZ operator opt (const ZZ& o) const { \
-			ZZ x = *this; x opt##= o; return x; }
-	DEFOPT(+)
-	DEFOPT(-)
-	DEFOPT(*)
-	DEFOPT(/)
-	#undef DEFOPT
-	ZZ pow(int n) const {
-		ZZ x = *this; ZZ r = 1;
-		while (n > 0) {
-			if (n & 1) { r *= x; }
-			x *= x; n >>= 1;
-		}
-		return r;
-	}
-	ZZ inv() const {
-		return cached_inv == -1 ? cached_inv = pow(MOD - 2).value : cached_inv;
-	}
+  static constexpr long long MOD = ${1:1000000007LL};
+  long long value;
+  mutable long long cached_inv;
+  ZZ(long long v=0) : value(v), cached_inv(-1) {
+    ensure();
+  }
+  void ensure() {
+    if (value < 0 || value >= MOD) {
+      value %= MOD;
+      value = (value + MOD) % MOD;
+    }
+  }
+  void R() { scanf("%lld", &value); cached_inv = -1; }
+  ZZ& operator += (const ZZ& o) {
+    value += o.value;
+    if (value >= MOD) value -= MOD;
+    return *this;
+  }
+  ZZ& operator -= (const ZZ& o) {
+    value -= o.value;
+    if (value < 0) value += MOD;
+    return *this;
+  }
+  ZZ& operator *= (const ZZ& o) {
+    value *= o.value;
+    value %= MOD;
+    return *this;
+  }
+  ZZ& operator /= (const ZZ& o) {
+    return (*this *= o.inv());
+  }
+  #define DEFOPT(opt) \
+    ZZ operator opt (const ZZ& o) const { \
+      ZZ x = *this; x opt##= o; return x; }
+  DEFOPT(+)
+  DEFOPT(-)
+  DEFOPT(*)
+  DEFOPT(/)
+  #undef DEFOPT
+  ZZ pow(int n) const {
+    ZZ x = *this; ZZ r = 1;
+    while (n > 0) {
+      if (n & 1) { r *= x; }
+      x *= x; n >>= 1;
+    }
+    return r;
+  }
+  ZZ inv() const {
+    return cached_inv == -1 ? cached_inv = pow(MOD - 2).value : cached_inv;
+  }
 };
 inline void read_this(ZZ&z) {read_this(z.value);}
 ostream& operator<< (ostream& os, const ZZ& x) {
-	assert (x.value >= 0); os << x.value; return os;
+  assert (x.value >= 0); os << x.value; return os;
 }
 /** END OF ZZ **/
 $0
@@ -980,6 +980,99 @@ struct SplayTree {
     // now everything is up to date in the path
     splay(ptrs[a]);
     return ptrs[a]->l_child != nullptr ? ptrs[a]->l_child->size : 0;
+  }
+};
+endsnippet
+
+snippet SEGTREE "segment tree" b
+struct SegmentTree {
+  template<typename T>
+  struct Pool {
+    vector<T> pool;
+    size_t last;
+    void init(size_t pool_size) {
+      pool.clear();
+      pool.resize(pool_size);
+      last = 0;
+    }
+    template<typename... Ts>
+    T* get_node(Ts... args) {
+      assert (last < pool.size());
+      auto idx = last;
+      last ++;
+      return (this->pool)[idx].init(args...);
+    }
+  };
+  struct Node {
+    Node* l_child;
+    Node* r_child;
+    size_t l_idx;
+    size_t r_idx;
+    LL value;
+    LL max_idx;
+    Node* init(const size_t& l, const size_t& r, Pool<Node>* pool) {
+      assert(l <= r);
+      l_idx = l;
+      r_idx = r;
+      value = 0;
+      if (l == r) {
+        max_idx = l;
+        l_child = r_child = nullptr;
+      } else {
+        auto m = (l + r) / 2;
+        l_child = pool->get_node(l, m, pool);
+        r_child = pool->get_node(m + 1, r, pool);
+        max_idx = m;
+      }
+      return this;
+    }
+    void update(size_t idx, LL v) {
+      if (l_idx == idx && r_idx == idx) {
+        value = v;
+        return;
+      }
+      auto m = (l_idx + r_idx) / 2;
+      if (idx <= m) { // in left
+        l_child->update(idx, v);
+      } else { // in right
+        r_child->update(idx, v);
+      }
+      if (value < v) {
+        value = v;
+        max_idx = idx;
+      }
+    }
+    LL query(size_t l, size_t r) const {
+      if (l_idx == l && r_idx == r) {
+        return value;
+      }
+      auto m = (l_idx + r_idx) / 2;
+      if (l > m) { // all in right
+        return r_child->query(l, r);
+      } else if (r <= m) { // all in left
+        return l_child->query(l, r);
+      } else {
+        auto l_ret = l_child->query(l, m);
+        auto r_ret = r_child->query(m + 1, r);
+        if (l_ret < r_ret) {
+          return r_ret;
+        } else {
+          return l_ret;
+        }
+      }
+    }
+  };
+  Pool<Node> pool;
+  Node* root;
+  void init(size_t n) {
+    pool.init(n * 2 + 20);
+    root = pool.get_node(0, n - 1, &pool);
+  }
+  void update(size_t idx, LL v) {
+    root->update(idx, v);
+  }
+  LL query(size_t l, size_t r) {
+    return root->query(l, r);
   }
 };
 endsnippet
