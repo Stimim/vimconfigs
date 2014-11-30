@@ -691,18 +691,73 @@ struct Heap {
 endsnippet
 
 snippet LCA "least common ancestor" b
-inline bool ancestor(int x, int y, const V<Vertex>& vs) {
-  return vs[x].in <= vs[y].in && vs[x].out >= vs[y].out;
-}
-int lca(int x, int y, const V<Vertex>& vs) {
-  if (ancestor(x, y, vs)) return x;
-  if (ancestor(y, x, vs)) return y;
-  for (auto i = 16; i >= 0; -- i) {
-    if (!ancestor(vs[x].p[i], y, vs)) {
-      x = vs[x].p[i];
+struct Tree {
+  const int LOGMAXN = 16;
+  V<V<int>> parents;
+  V<int> level;
+  V<LL> tin;
+  V<LL> tout;
+  // returns true if x is ancestor of y or x == y
+  bool ancestor(int x, int y) {
+    return tin[x] <= tin[y] && tout[x] >= tout[y];
+  }
+  int lca(int x, int y) {
+    if (ancestor(x, y)) return x;
+    if (ancestor(y, x)) return y;
+    for (int i = LOGMAXN - 1; i >= 0; -- i) {
+      if (!ancestor(parents[x][i], y)) {
+        x = parents[x][i];
+      }
+    }
+    return parents[x][0];
+  }
+	// assumes that 0 is root
+  void build_lca(const V<V<int>>& neighbors) {
+    const int N = neighbors.size();
+    tin.resize(N, 0);
+    tout.resize(N, 0);
+    level.resize(N, 0);
+    LL t = 0;
+    parents.clear();
+    parents.resize(N, vector<int>(LOGMAXN, 0));
+    struct SE {
+      int node;
+      int index;
+      SE(int n, int i) : node(n), index(i) { }
+    };
+    stack<SE> st;
+    st.push({0, 0});
+    while (!st.empty()) {
+      auto v = st.top().node;
+      auto index = st.top().index;
+      st.pop();
+      if (index == 0) { // first time
+        tin[v] = t ++;
+        for (auto i = 1; i < LOGMAXN; ++ i) {
+          parents[v][i] = parents[parents[v][i - 1]][i - 1];
+        }
+      }
+      if (index == neighbors[v].size()) {
+        tout[v] = t ++;
+        continue;
+      }
+      st.push({v, index + 1});
+      auto u = neighbors[v][index];
+      if (u != parents[v][0]) {
+        parents[u][0] = v;
+        level[u] = level[v] + 1;
+        st.push({u, 0});
+      }
     }
   }
-  return vs[x].p[0];
+  void build(const V<V<int>>& neighbors) {
+    build_lca(neighbors);
+  }
+  LL dist(int x, int y) {
+    auto p = lca(x, y);
+    LL d = level[x] + level[y] - 2 * level[p];
+    return d;
+  }
 }
 endsnippet
 
@@ -1076,3 +1131,4 @@ struct SegmentTree {
   }
 };
 endsnippet
+
