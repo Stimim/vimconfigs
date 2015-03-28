@@ -7,6 +7,9 @@ set shiftwidth=2
 set softtabstop=2
 set tabstop=2
 
+" change the color of ycm list
+highlight Pmenu ctermfg=0 ctermbg=3
+
 autocmd BufNewFile *.cpp 0r ~/.vim/stimim/templates/cpp.tpl
 autocmd BufNewFile *.c 0r ~/.vim/stimim/templates/c.tpl
 autocmd BufNewFile *.tex 0r ~/.vim/stimim/templates/tex.tpl
