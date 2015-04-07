@@ -95,6 +95,7 @@ typedef long long LL;
 typedef unsigned long long ULL;
 template <typename T> using V = std::vector<T>;
 #define RI(x, ...) read_these(x, ##__VA_ARGS__)
+#define DRI(type, x, ...) type x, ##__VA_ARGS__;read_these(x, ##__VA_ARGS__)
 #define RV(v) read_these(v)
 #define RNP(n, p) read_these(n,p)
 inline void read_this(int&v){scanf("%d",&v);}
@@ -1132,3 +1133,76 @@ struct SegmentTree {
 };
 endsnippet
 
+snippet DisjointSet "Disjoint Set" b
+struct DisjointSet {
+	V<int> _parents;
+	V<int> _heights;
+	void init(int n) {
+		_parents.resize(n);
+		_heights.resize(n);
+		for (auto i = 0; i < n; ++ i) {
+			_parents[i] = i;
+			_heights[i] = 0;
+		}
+	}
+
+	int parent(int x) {
+		if (_parents[x] == x) {
+			return x;
+		}
+		return (_parents[x] = parent(_parents[x]));
+	}
+
+	void join(int x, int y) {
+		auto px = parent(x);
+		auto py = parent(y);
+		if (px == py) return;
+		if (_heights[px] > _heights[py]) {
+			_parents[py] = px;
+		} else if (_heights[px] < _heights[py]) {
+			_parents[px] = py;
+		} else {
+			_parents[px] = py;
+			_heights[py] ++;
+		}
+	}
+};
+endsnippet
+
+snippet RMQ "range minimum query" b
+struct RMQ {
+  V<V<int>> vs;
+  V<int> logn;
+  void init(const V<int>& xs) {
+    const int n = xs.size();
+    vs.clear();
+    vs.resize(32, V<int>(n + 1));
+    logn.resize(n);
+    for (auto i = 0; i < n; ++ i) {
+      vs[0][i] = xs[i];
+    }
+    for (auto j = 1; (1 << j) <= n; ++ j) {
+      for (auto i = 0; i + (1 << j) - 1 < n; ++ i) {
+        vs[j][i] = max(vs[j - 1][i], vs[j - 1][i + (1 << (j - 1))]);
+      }
+    }
+    for (auto i = 0; i < n; ++ i) {
+      auto l = 0, r = 20;
+      while (r - l > 1) {
+        auto m = (r + l) / 2;
+        auto k = 1 << m;
+        if (k <= i + 1) {
+          l = m;
+        } else {
+          r = m;
+        }
+      }
+      logn[i] = l;
+    }
+  }
+  int query(int i, int j) {
+    const auto k = logn[j - i];
+    return max(vs[k][i], vs[k][j - (1 << k) + 1]);
+  }
+};
+endsnippet
