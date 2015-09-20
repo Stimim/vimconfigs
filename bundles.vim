@@ -37,6 +37,10 @@ let g:UltiSnipsListSnippets="<F3>"
 let g:UltiSnipsJumpForwardTrigger="<c-b>"
 let g:UltiSnipsJumpBackwardTrigger="<c-z>"
 
+"Plugin 'jelera/vim-javascript-syntax'
+Plugin 'pangloss/vim-javascript'
+"au FileType javascript call JavaScriptFold()
+
 " color schemes
 " Plugin 'Lokaltog/vim-distinguished'
 
