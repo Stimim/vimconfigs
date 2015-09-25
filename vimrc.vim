@@ -7,6 +7,8 @@ set shiftwidth=2
 set softtabstop=2
 set tabstop=2
 
+set clipboard=unnamedplus
+
 " change the color of ycm list
 highlight Pmenu ctermfg=0 ctermbg=3
 
