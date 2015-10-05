@@ -21,6 +21,8 @@ autocmd BufNewFile *.rb 0r ~/.vim/stimim/templates/rb.tpl
 autocmd FileType make setlocal noexpandtab
 autocmd BufNewFile,BufRead *.sage setlocal filetype=python
 
+set colorcolumn=80
+
 set t_Co=256
 set bg=dark
 "colorscheme distinguished
