@@ -24,6 +24,7 @@ let g:ycm_autoclose_preview_window_after_completion=1
 Plugin 'vim-scripts/STL-Syntax'
 
 Plugin 'bling/vim-airline'
+let g:airline#extensions#tabline#enabled = 1
 
 Plugin 'scrooloose/nerdcommenter'
 
