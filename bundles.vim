@@ -10,6 +10,8 @@ Plugin 'gmarik/vundle'
 Plugin 'tpope/vim-fugitive'
 Plugin 'tpope/vim-sensible'
 
+Plugin 'tmux-plugins/vim-tmux'
+
 " Plugin 'Lokaltog/vim-easymotion'
 
 Plugin 'hallison/vim-markdown'
