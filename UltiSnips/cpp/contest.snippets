@@ -1048,6 +1048,112 @@ struct SplayTree {
 };
 endsnippet
 
+snippet PERSIST_SEGTREE "persistance segment tree" b
+struct SegmentTree {
+  template<typename T>
+  struct Pool {
+    vector<T> pool;
+    size_t last;
+    void init(size_t pool_size) {
+      pool.clear();
+      pool.resize(pool_size);
+      last = 0;
+    }
+    template<typename... Ts>
+    T* get_node(Ts... args) {
+      assert (last < pool.size());
+      auto idx = last;
+      last ++;
+      return (this->pool)[idx].init(args...);
+    }
+  };
+  struct Node {
+    Node* l_child;
+    Node* r_child;
+    size_t l_idx;
+    size_t r_idx;
+    LL value;
+    Node* init(const size_t& l, const size_t& r,
+               Node* pl, Node* pr) {
+      l_idx = l;
+      r_idx = r;
+      value = 0;
+      l_child = pl;
+      r_child = pr;
+      return this;
+    }
+    Node* init(const size_t& l, const size_t& r, Pool<Node>* pool) {
+      assert(l <= r);
+      l_idx = l;
+      r_idx = r;
+      value = 0;
+      if (l == r) {
+        l_child = r_child = nullptr;
+      } else {
+        auto m = (l + r) / 2;
+        l_child = pool->get_node(l, m, pool);
+        r_child = pool->get_node(m + 1, r, pool);
+      }
+      return this;
+    }
+    Node* update(size_t idx, LL v, Pool<Node>* pool) const {
+      if (l_idx == idx && r_idx == idx) {
+        auto p = pool->get_node(idx, idx, nullptr, nullptr);
+        p->value = v;
+        return p;
+      }
+      auto m = (l_idx + r_idx) / 2;
+      auto pl = l_child;
+      auto pr = r_child;
+      if (idx <= m) { // in left
+        pl = l_child->update(idx, v, pool);
+      } else { // in right
+        pr = r_child->update(idx, v, pool);
+      }
+      auto p = pool->get_node(l_idx, r_idx, pl, pr);
+      p->value = max(value, v);
+      return p;
+    }
+    LL query(size_t l, size_t r) const {
+      if (l_idx == l && r_idx == r) {
+        return value;
+      }
+      auto m = (l_idx + r_idx) / 2;
+      if (l > m) { // all in right
+        return r_child->query(l, r);
+      } else if (r <= m) { // all in left
+        return l_child->query(l, r);
+      } else {
+        auto l_ret = l_child->query(l, m);
+        auto r_ret = r_child->query(m + 1, r);
+        if (l_ret < r_ret) {
+          return r_ret;
+        } else {
+          return l_ret;
+        }
+      }
+    }
+  };
+  Pool<Node> pool;
+  Node* root; // cache the latest root
+  Node* init(size_t n) {
+    return root = pool.get_node(0, n - 1, &pool);
+  }
+  void init_pool(size_t n) {
+    pool.init(n);
+  }
+  Node* update(size_t idx, LL v) {
+    return root = update(root, idx, v);
+  }
+  Node* update(Node* p, size_t idx, LL v) {
+    return p->update(idx, v, &pool);
+  }
+  LL query(size_t l, size_t r) {
+    return root->query(l, r);
+  }
+};
+endsnippet
+
 snippet SEGTREE "segment tree" b
 struct SegmentTree {
   template<typename T>
