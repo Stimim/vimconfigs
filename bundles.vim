@@ -35,10 +35,10 @@ Plugin 'vim-scripts/gtags.vim'
 Plugin 'vim-scripts/haskell.vim'
 
 Plugin 'SirVer/ultisnips'
-let g:UltiSnipsExpandTrigger="<F2>"
+let g:UltiSnipsExpandTrigger="<c-]>"
 let g:UltiSnipsListSnippets="<F3>"
-let g:UltiSnipsJumpForwardTrigger="<c-b>"
-let g:UltiSnipsJumpBackwardTrigger="<c-z>"
+let g:UltiSnipsJumpForwardTrigger="<c-j>"
+let g:UltiSnipsJumpBackwardTrigger="<c-k>"
 
 "Plugin 'jelera/vim-javascript-syntax'
 Plugin 'pangloss/vim-javascript'
