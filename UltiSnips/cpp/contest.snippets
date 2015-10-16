@@ -1073,8 +1073,7 @@ struct SegmentTree {
     size_t l_idx;
     size_t r_idx;
     LL value;
-    Node* init(const size_t& l, const size_t& r,
-               Node* pl, Node* pr) {
+    Node* init(const size_t& l, const size_t& r, Node* pl, Node* pr) {
       l_idx = l;
       r_idx = r;
       value = 0;
@@ -1319,4 +1318,35 @@ struct RMQ {
     return max(vs[k][i], vs[k][j - (1 << k) + 1]);
   }
 };
+endsnippet
+
+snippet PRIMES "generate primes"
+  V<int> primes;
+  const LL MAX_N = ${1:100005LL};
+#if 0
+  // ~ O(n lg lg n), but can factor each numbers in O(lg n) time
+  V<int> largestPrimeFactor(MAX_N);
+  for (auto i = 0; i < largestPrimeFactor.size(); i ++) {
+    largestPrimeFactor[i] = i;
+  }
+  for (auto i = 2; i < largestPrimeFactor.size(); ++ i) {
+    if (largestPrimeFactor[i] != i) {
+      continue;
+    }
+    primes.push_back(i);
+    for (auto j = i * 2; j < largestPrimeFactor.size(); j += i) {
+      largestPrimeFactor[j] = i;
+    }
+  }
+#else
+  // ~ O(n lg lg n), but should be slightly factor than previous one
+  V<bool> isp(MAX_N, true);
+  isp[0] = isp[1] = false;
+    for (auto p = 2; p < MAX_N; p ++) {
+    if (!isp[p]) continue;
+    primes.push_back(p);
+    for (auto q = p * (LL) p; q < MAX_N; q += p)
+      isp[q] = false;
+  }
+#endif
 endsnippet
